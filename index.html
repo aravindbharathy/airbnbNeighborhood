@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<script src="lib/jquery-2.2.4.min.js"></script>
+<script src="lib/bootstrap.bundle.min.js"></script>
+<script src="//maps.google.com/maps/api/js?sensor=true"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link href="css/simple-sidebar.css" rel="stylesheet">
+
+<style type="text/css">
+    /* sliders */
+
+    .d3slider {
+        z-index: 2;
+        height: 100%;
+        background: none;
+    }
+
+    .d3slider-rect-range {
+        fill: #aaa;
+        stroke: none;
+    }
+
+    .d3slider-rect-value {
+        fill: #003e7e;
+        stroke: none;
+    }
+
+    .d3slider-axis {
+        position: relative;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    .d3slider-axis path {
+        display: none;
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .d3slider-axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .d3slider text {
+        font: 10px sans-serif;
+    }
+
+    .tick.minor text {
+        display: none;
+    }
+
+    .tick line {
+        stroke-width: 1;
+    }
+    .tick.minor line {
+        stroke-width: 1;
+        stroke: #bbb;
+    }
+
+    .dragger rect {
+        fill: #185caa;
+        stroke: none;
+        z-index: 3;
+    }
+
+    .dragger line {
+        stroke: #aa0000;
+        fill: none;
+    }
+
+    .dragger-outer {
+        fill: #fff;
+        stroke: #000;
+    }
+
+    .dragger-inner {
+        fill: #fff;
+        stroke: none;
+    }
+
+    .min-marker line {
+        stroke: #aa0000;
+        fill: none;
+    }
+
+    .overlay {
+        fill: none;
+        pointer-events: all;
+        z-index: 1;
+    }
+
+    .listings, .listings svg {
+      position: absolute;
+    }
+
+    .listings svg {
+      width: 60px;
+      height: 20px;
+      padding-right: 100px;
+      font: 10px sans-serif;
+    }
+
+    .listings circle {
+      fill: brown;
+      stroke: black;
+      stroke-width: 0.5px;
+    }
+
+    .metro, .metro svg {
+      position: absolute;
+    }
+
+    .metro svg {
+      width: 60px;
+      height: 20px;
+      padding-right: 100px;
+      font: 10px sans-serif;
+    }
+
+    .metro circle {
+      fill: green;
+      stroke: black;
+      stroke-width: 1.5px;
+    }
+
+    #map {
+      width: 900px;
+      height: 700px;
+      margin: 0;
+      padding: 0;
+    }
+
+</style>
+</head>
+<body>
+     <div id="wrapper" class="toggled">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <h1>Controls</h1>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <h1>Airbnb Neighbourhoods</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat</p>
+                <div id="map"></div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <script src="app/main/airbnb_main.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
