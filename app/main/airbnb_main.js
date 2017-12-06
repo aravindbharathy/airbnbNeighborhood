@@ -10,6 +10,32 @@ var map = new google.maps.Map(d3.select("#map").node(), {
   mapTypeId: google.maps.MapTypeId.roadmap
 });
 
+// add metroline
+var metroline = new google.maps.KmlLayer({
+  url: 'http://googlemaps.github.io/js-v2-samples/ggeoxml/cta.kml',
+  map: map
+});
+
+// add niehgborhood
+// var neighborhoodsLayerP = new google.maps.KmlLayer({
+//   url: 'https://hungwenc.people.si.umich.edu/chicagoneighbor.kml',
+//   preserveViewport: true,
+//   map: map
+// });
+
+var neighborhoodsLayerP1 = new google.maps.KmlLayer({
+  url: 'http://chicagomap.zolk.com/sources/neighborhoods/source_p1.kml',
+  preserveViewport: true,
+  map: map
+});
+
+var neighborhoodsLayerP2 = new google.maps.KmlLayer({
+  url: 'http://chicagomap.zolk.com/sources/neighborhoods/source_p2.kml',
+  preserveViewport: true,
+  map: map
+});
+
+
 // Load the listings data. When the data comes back, create an overlay.
 d3.json("data/listings.json", function(error, data) {
   if (error) throw error;
