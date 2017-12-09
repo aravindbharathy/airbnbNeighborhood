@@ -3,14 +3,14 @@ function Listings(){
     "use strict";
 
     this.rawData = {};
-    this.completeListings = [];
-    this.completeNeighborhoods = [];
+    this.allListings = [];
+    this.allNeighborhoods = [];
     
 
     //BLOCK: setters
 
     //create a population with PERSON as the base entity using Raw Data
-    this.setCompleteListings = function () {
+    this.setAllListings = function () {
         
     };
 
@@ -20,7 +20,7 @@ function Listings(){
 
     //BLOCK: utility functions
 
-    this.getCompleteListings = function () {
+    this.getAllListings = function () {
         
     };
 }
