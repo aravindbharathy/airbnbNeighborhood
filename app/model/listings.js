@@ -18,9 +18,11 @@ function Listings(){
 
     //BLOCK: getters
 
-    //BLOCK: utility functions
-
     this.getAllListings = function () {
         
     };
+
+
+    //BLOCK: utility functions
+
 }
