@@ -3,6 +3,9 @@
 //BLOCK: Initialize variables
 var neighborhoods = []; //list of all neighborhoods stored as objects
 var listings = []; //list of all listings stored as objects
+var inputWalkScoreRange={"min":0, "max":100};
+var outputWalkScoreRange={"min":0, "max":3};
+var heatMapData = [];
 
     
 //BLOCK: Initialize controls
@@ -28,27 +31,62 @@ function loadData(){
 
 
 
-
-
+    
     // Load the listings data.
+    /* 
     d3.json("data/listings.json", function(error, data) {
         if (error) throw error;
 
         //TODO: parse listings data and populate listings array 
+        for (var i = 0; i < data.length; i++) { 
+            let lat = data[i].latitude;
+            let lon = data[i].longitude;
+            let type = 0; // ?
+            let list = new Listings();
+            list.createListing(data[i].id, data[i].name, data[i].latitude, data[i].longitude, type, data[i].price, data[i].neighbourhood);
+            listings.push(list);
+        }
+
+        // TODO: assign listing ids to each neighborhood : call neighborhood.setAllListings()
 
 
 
 
-        //TODO: assign listing ids to each neighborhood : call neighborhood.setAllListings()
-
-
-
-
-        //TODO: assign walk scores to each listing - Hung Wen
-
-
-
+        //TODO: (method1) assign walk scores to each listing - use walkscore API -Hung Wen 
+        for (var i = 0; i < listings.length; i++) {
+            listings[i].setWalkScore();
+            let scaleWalkscore = calculateScale(listings[i].getWalkScore(), inputWalkScoreRange, outputWalkScoreRange);
+            heatMapData.push({location:new google.maps.LatLng(listings[i].lat, listings[i].long), weight: scaleWalkscore});
+        }
+        console.log(listings);
     });
+    */
+    
+    //TODO: (method2) assign walk scores to each listing -  read score from json -Hung Wen 
+    queue()
+        .defer(d3.json, "data/listings.json")
+        .defer(d3.json, "data/score.json")
+        .await(ready);
+
+    function ready(error, datalistings, dataScore) {
+        if (error) throw error;
+        //TODO: parse listings data and populate listings array 
+        for (var i = 0; i < datalistings.length; i++) { 
+            let lat = datalistings[i].latitude;
+            let lon = datalistings[i].longitude;
+            let type = 0; // ?
+            let list = new Listings();
+            list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, type, datalistings[i].price, datalistings[i].neighbourhood);
+            list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
+            listings.push(list);
+            heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
+        }
+        console.log(listings);
+        console.log(heatMapData);
+        displayHeatMap();
+    }
+    
+
 
     // Load the metro data.
     d3.json("data/Chicago_Metro_Stop_Data.json", function(error, data) {
@@ -57,6 +95,16 @@ function loadData(){
       
     });
 
+}
+
+function calculateScale(input, inputDomain, outputRange){
+    //helper function to scale values 
+    var inputDiff = inputDomain.max - inputDomain.min;
+    var outputDiff = outputRange.max - outputRange.min;
+    if ((input - inputDomain.min) == 0) {
+      return (outputRange.min);
+    }
+    return (input - inputDomain.min) / inputDiff * outputDiff + outputRange.min
 }
 
 
@@ -168,4 +216,12 @@ function displayMetros(data){
 
       // Bind our overlay to the map…
       overlay.setMap(map);
+}
+
+
+function displayHeatMap(){
+    var heatmap = new google.maps.visualization.HeatmapLayer({
+      data: heatMapData
+    });
+    heatmap.setMap(map);
 }

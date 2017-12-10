@@ -32,8 +32,25 @@ function Listings(){
     };
 
     //Assigned To: Hung Wen
+    let self = this;
     this.setWalkScore = function(){
-
+        $.ajax({
+            type:"GET",                       
+            url:"app/model/walkscore.php",
+            data: {
+                "address" : self.address,
+                "lat" : parseFloat(self.lat), 
+                "lon" : parseFloat(self.long)                               
+            },
+            success: function(response){  
+                var resp = $.parseJSON(response);
+                self.walkScore =  resp.walkscore ;
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                console.log("Status: " + textStatus); 
+                console.log("Error: " + errorThrown); 
+            }
+        });
     }
 
     
