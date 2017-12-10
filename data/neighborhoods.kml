@@ -4,9 +4,10 @@
 <Style id="defaultStyle">
   <LineStyle>
     <width>1.5</width>
+    <color>#e5e5e5</color>
   </LineStyle>
   <PolyStyle>
-    <color>7d8a30c4</color>
+    <color>#f5f5f5</color>
   </PolyStyle>
 </Style>
   <Folder><Placemark>

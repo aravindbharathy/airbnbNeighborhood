@@ -1,20 +1,16 @@
 //sample model
-function Listings(){
+function Neighborhood(polygon,id,name,value){
     "use strict";
-
-    this.id = -1;
+    
+    this.polygon = polygon;
+    this.id = id;
+    this.name = name;
+    this.value = value;
     this.allListings = []; //array of listing ids
-    this.name = "";
     this.crimeData = "";
     this.metroStops = []; //[{lat: 22.33, long: 23.33},{lat: 22.33, long: 23.33}]
 
     //constructor
-
-    //Assigned to: Aravind
-    this.createNeighborhood = function(id,name){
-        this.id = id;
-        this.name = name;
-    }
 
     //BLOCK: setters
     this.setAllListings = function (listings) { 

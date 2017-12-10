@@ -18,17 +18,36 @@ var map = new google.maps.Map(d3.select("#map").node(), {
 });
 
 //Create a geoXML parser for KML neighborhood
-var neighborhoodParser = new geoXML3.parser({map: map});
+var  neighborhoodParser = new geoXML3.parser(
+        {
+            map: map,
+            afterParse:function(docs){
+                if (docs[0].gpolygons.length>0){ 
+                    var colorScale = d3.scale.linear().range([0,255]).domain([1,100]);
+                    for(var i = 0; i < docs[0].gpolygons.length; i++){
+                        var polygon = docs[0].gpolygons[i];
+                        var id = docs[0].placemarks[i].vars.val.sec_neigh;
+                        var name = docs[0].placemarks[i].vars.val.pri_neigh;    
+                        var val = Math.floor(Math.random() * 100) + 1;
+                        var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
+                        docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
+                        neighborhoods.push(new Neighborhood(polygon,id,name,val));
+                    }
+                    console.log(neighborhoods);
+                    loadData();
+                }else{
+                    //[.....]
+                }
+            }
+        });
 
 
-function initialize(callback){
+function initialize(){
     neighborhoodParser.parse('../../data/neighborhoods.kml');
-    callback();
 }
 
 function loadData(){
     //TODO: parse neighborhood data from neighborhoodParser and populate neighborhoods array  - Aravind
-
 
 
     
@@ -79,10 +98,10 @@ function loadData(){
             list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, type, datalistings[i].price, datalistings[i].neighbourhood);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
             listings.push(list);
-            heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
+           // heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
         }
-        console.log(listings);
-        console.log(heatMapData);
+     //   console.log(listings);
+      //  console.log(heatMapData);
         displayHeatMap();
     }
     
@@ -109,9 +128,7 @@ function calculateScale(input, inputDomain, outputRange){
 
 
 //call initialize
-initialize(function(){
-    loadData();
-});
+initialize();
 
 
 function displayListings(data){
