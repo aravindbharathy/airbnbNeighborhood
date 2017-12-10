@@ -64,7 +64,7 @@ function loadData(){
     
     //TODO: (method2) assign walk scores to each listing -  read score from json -Hung Wen 
     queue()
-        .defer(d3.json, "data/listings.json")
+        .defer(d3.json, "data/listings_all.json")
         .defer(d3.json, "data/score.json")
         .await(ready);
 
@@ -74,9 +74,22 @@ function loadData(){
         for (var i = 0; i < datalistings.length; i++) { 
             let lat = datalistings[i].latitude;
             let lon = datalistings[i].longitude;
-            let type = 0; // ?
+            let address = datalistings[i].street;
+            let room_type = datalistings[i].room_type;
             let list = new Listings();
-            list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, type, datalistings[i].price, datalistings[i].neighbourhood);
+            if (datalistings[i].room_type === "Entire home/apt")
+            {
+              datalistings[i].room_type = 2;
+            }
+            else if (datalistings[i].room_type === "Private room")
+            {
+              datalistings[i].room_type = 1;
+            }
+            else
+            {
+              datalistings[i].room_type = 0;
+            }
+            list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street, datalistings[i].neighbourhood);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
             listings.push(list);
             heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
