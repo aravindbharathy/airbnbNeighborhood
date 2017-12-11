@@ -52,17 +52,24 @@ function loadData(){
 
     
     // Load the listings data.
-    /* 
-    d3.json("data/listings.json", function(error, data) {
+    /*
+    d3.json("data/listings_all.json", function(error, data) {
         if (error) throw error;
 
         //TODO: parse listings data and populate listings array 
         for (var i = 0; i < data.length; i++) { 
             let lat = data[i].latitude;
             let lon = data[i].longitude;
-            let type = 0; // ?
+            let room_type = data[i].room_type;
             let list = new Listings();
-            list.createListing(data[i].id, data[i].name, data[i].latitude, data[i].longitude, type, data[i].price, data[i].neighbourhood);
+            if (room_type === "Entire home/apt") {
+              data[i].room_type = 2;
+            } else if (room_type === "Private room") {
+              data[i].room_type = 1;
+            } else {
+              data[i].room_type = 0;
+            }
+            list.createListing(data[i].id, data[i].name, data[i].latitude, data[i].longitude, data[i].room_type, data[i].price, data[i].street);
             listings.push(list);
         }
 
@@ -96,28 +103,22 @@ function loadData(){
             let address = datalistings[i].street;
             let room_type = datalistings[i].room_type;
             let list = new Listings();
-            if (datalistings[i].room_type === "Entire home/apt")
-            {
+            if (room_type === "Entire home/apt") {
               datalistings[i].room_type = 2;
-            }
-            else if (datalistings[i].room_type === "Private room")
-            {
+            } else if (room_type === "Private room") {
               datalistings[i].room_type = 1;
-            }
-            else
-            {
+            } else {
               datalistings[i].room_type = 0;
             }
-            list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street, datalistings[i].neighbourhood);
+            list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
             listings.push(list);
-           // heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
+            heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
         }
-     //   console.log(listings);
-      //  console.log(heatMapData);
+        // console.log(listings);
+        // console.log(heatMapData);
         displayHeatMap();
     }
-    
 
 
     // Load the metro data.
