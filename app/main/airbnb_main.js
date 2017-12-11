@@ -4,6 +4,7 @@ var listings = []; //list of all listings stored as objects
 var inputWalkScoreRange={"min":0, "max":100};
 var outputWalkScoreRange={"min":0, "max":3};
 var hashMap = new Map();
+var isZoomed = false;
     
 //BLOCK: Initialize controls
 
@@ -40,11 +41,23 @@ google.maps.Polygon.prototype.getApproximateCenter = function() {
 };
 
 //Create a geoXML parser for KML neighborhood
-var infowindow;
+var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+    var icons = {
+       parking: {
+         icon: iconBase + 'parking_lot_maps.png'
+       },
+       library: {
+         icon: iconBase + 'library_maps.png'
+       },
+       info: {
+         icon: iconBase + 'info-i_maps.png'
+       }
+};
 var  neighborhoodParser = new geoXML3.parser(
         {
             map: map,
-            singleInfoWindow: 1,
+            singleInfoWindow: false,
+            zoom: false,
             createMarker: function (placemark, doc, neighborhood, polygon) {
                 var contentString = '<div id="content">'+
                                     '<div id="siteNotice">'+
@@ -60,28 +73,47 @@ var  neighborhoodParser = new geoXML3.parser(
                                     '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
                                     'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
                                     '(last visited June 22, 2009).</p>'+
+                                    '<button class="btn-primary btn-close" onclick="zoomOut()">Close</button>'+
                                     '</div>'+
                                     '</div>';
 
-                infowindow = new google.maps.InfoWindow({
+                var infowindow = new google.maps.InfoWindow({
                         minWidth:150, 
                         maxWidth:400,
                         content: contentString
                     });
 
+                var markerImage = {
+                   url: icons["info"].icon,
+                   size: new google.maps.Size(8, 8),
+                   origin: null,
+                   anchor: null,
+                   scaledSize: new google.maps.Size(8, 8)
+                };
+
                 var marker=new google.maps.Marker({
                         title: placemark.vars.val.pri_neigh,
                         position: polygon.getApproximateCenter(),    
-                        map: map
+                        map: map,
+                        icon: icons["info"].icon
                     });        
 
                 google.maps.event.addListener(marker, 'mouseover', function() {
                     infowindow.open(map,marker);
                 });
 
+                google.maps.event.addListener(marker, 'mouseout', function() {
+                    if(!isZoomed){
+                        infowindow.close(map,marker);    
+                    }                    
+                });
+
                  google.maps.event.addListener(marker, 'click', function() {
                     this.getMap().setCenter(this.getPosition());
-                    this.getMap().setZoom(100);
+                    this.getMap().setZoom(14);
+                    isZoomed = true;
+                    infowindow.open(map,marker);
+                    placemark.polygon.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
                     displayHeatMap(neighborhood.getAllListings());
                 });
 
@@ -109,6 +141,12 @@ var  neighborhoodParser = new geoXML3.parser(
             }
 
         });
+
+function zoomOut(){
+    console.log("click");  
+    isZoomed = false;
+    map.setZoom(12);
+}
 
 function initialize(){
     loadData();
