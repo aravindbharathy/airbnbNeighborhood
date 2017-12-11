@@ -1,11 +1,8 @@
-
-
 //BLOCK: Initialize variables
 var neighborhoods = []; //list of all neighborhoods stored as objects
 var listings = []; //list of all listings stored as objects
 var inputWalkScoreRange={"min":0, "max":100};
 var outputWalkScoreRange={"min":0, "max":3};
-var heatMapData = [];
 var hashMap = new Map();
     
 //BLOCK: Initialize controls
@@ -84,7 +81,8 @@ var  neighborhoodParser = new geoXML3.parser(
 
                  google.maps.event.addListener(marker, 'click', function() {
                     this.getMap().setCenter(this.getPosition());
-                    this.getMap().setZoom(14);
+                    this.getMap().setZoom(100);
+                    displayHeatMap(neighborhood.getAllListings());
                 });
 
                 return marker;
@@ -142,23 +140,19 @@ function loadData(){
               datalistings[i].room_type = 0;
             }
             if (hashMap.has(datalistings[i].neighbourhood_cleansed)) {
-                hashMap.get(datalistings[i].neighbourhood_cleansed).push(datalistings[i].id);
+                hashMap.get(datalistings[i].neighbourhood_cleansed).push(i);
             } else {
                 var element = [];
-                element.push(datalistings[i].id);
+                element.push(i);
                 hashMap.set(datalistings[i].neighbourhood_cleansed, element);
             }
             list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
             listings.push(list);
 
-            // heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
         }
 
         neighborhoodParser.parse('../../data/neighborhoods.kml');
-        // console.log(listings);
-        // console.log(heatMapData);
-        // displayHeatMap();
     }
 
 
@@ -290,9 +284,16 @@ function displayMetros(data){
 }
 
 
-function displayHeatMap(){
-    var heatmap = new google.maps.visualization.HeatmapLayer({
-      data: heatMapData
-    });
-    heatmap.setMap(map);
+function displayHeatMap(allListings){
+    if (typeof(allListings) !== 'undefined'){
+        let heatMapData = [];
+        for (var i = 0; i < allListings.length; i++) {
+            let index = allListings[i];
+            heatMapData.push({location:new google.maps.LatLng(listings[index].lat, listings[index].long), weight: listings[index].walkScore});
+        }
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+          data: heatMapData
+        });
+        heatmap.setMap(map);
+    }
 }
