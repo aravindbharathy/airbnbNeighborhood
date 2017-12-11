@@ -6,7 +6,7 @@ var listings = []; //list of all listings stored as objects
 var inputWalkScoreRange={"min":0, "max":100};
 var outputWalkScoreRange={"min":0, "max":3};
 var heatMapData = [];
-
+var hashMap = new Map();
     
 //BLOCK: Initialize controls
 
@@ -43,25 +43,12 @@ google.maps.Polygon.prototype.getApproximateCenter = function() {
 };
 
 //Create a geoXML parser for KML neighborhood
-var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
-var icons = {
-      parking: {
-        icon: iconBase + 'parking_lot_maps.png'
-      },
-      library: {
-        icon: iconBase + 'library_maps.png'
-      },
-      info: {
-        icon: iconBase + 'info-i_maps.png'
-      }
-};
-var neighborhoodParser = new geoXML3.parser(
+var infowindow;
+var  neighborhoodParser = new geoXML3.parser(
         {
             map: map,
-            singleInfoWindow: false,
-            zoom: false,
-            createMarker: function (placemark, doc, neighborhood,polygon) {
-
+            singleInfoWindow: 1,
+            createMarker: function (placemark, doc, neighborhood, polygon) {
                 var contentString = '<div id="content">'+
                                     '<div id="siteNotice">'+
                                     '</div>'+
@@ -79,71 +66,25 @@ var neighborhoodParser = new geoXML3.parser(
                                     '</div>'+
                                     '</div>';
 
-                var infowindow = new google.maps.InfoWindow({
+                infowindow = new google.maps.InfoWindow({
                         minWidth:150, 
                         maxWidth:400,
                         content: contentString
                     });
 
-                // var markerImage = new google.maps.MarkerImage(
-                //     icons["info"].icon,
-                //     new google.maps.Size(8,8), //size
-                //     null, //origin
-                //     null, //anchor
-                //     new google.maps.Size(8,8) //scale
-                // );
-
-                var markerImage = {
-                  url: icons["info"].icon,
-                  size: new google.maps.Size(8, 8),
-                  origin: null,
-                  anchor: null,
-                  scaledSize: new google.maps.Size(8, 8)
-                };
-
                 var marker=new google.maps.Marker({
                         title: placemark.vars.val.pri_neigh,
                         position: polygon.getApproximateCenter(),    
-                        map: map,
-                        icon: icons["info"].icon,
+                        map: map
                     });        
 
                 google.maps.event.addListener(marker, 'mouseover', function() {
                     infowindow.open(map,marker);
                 });
 
-                google.maps.event.addListener(marker, 'mouseout', function() {
-                    infowindow.close(map,marker);
-                });
-
                  google.maps.event.addListener(marker, 'click', function() {
                     this.getMap().setCenter(this.getPosition());
                     this.getMap().setZoom(14);
-                });
-
-
-                //when the map zoom changes, resize the icon based on the zoom level so the marker covers the same geographic area
-                google.maps.event.addListener(map, 'zoom_changed', function() {
-                    var pixelSizeAtZoom0 = 1; //the size of the icon at zoom level 0
-                    var maxPixelSize = 20; //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
-
-                    var zoom = map.getZoom();
-                    console.log(zoom);
-                    var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(2,zoom)); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
-
-                    if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
-                        relativePixelSize = maxPixelSize;
-
-                    //change the size of the icon
-                    marker.setIcon(
-                        {
-                          url: icons["info"].icon,
-                          size: null,
-                          origin: null,
-                          anchor: null,
-                          scaledSize: new google.maps.Size(parseFloat(relativePixelSize), parseFloat(relativePixelSize)) //changes the scale
-                        }
-                    );        
                 });
 
                 return marker;
@@ -159,11 +100,11 @@ var neighborhoodParser = new geoXML3.parser(
                         var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
                         docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
                         var neighborhood = new Neighborhood(polygon,id,name,val);
+                        neighborhood.setAllListings(hashMap.get(name));
                         neighborhoods.push(neighborhood);
                         this.createMarker(docs[0].placemarks[i],docs[0],neighborhood,polygon);
                     }
                     console.log(neighborhoods);
-                    loadData();
                 }else{
                     //[.....]
                 }
@@ -171,54 +112,15 @@ var neighborhoodParser = new geoXML3.parser(
 
         });
 
-
 function initialize(){
+    loadData();
     neighborhoodParser.parse('../../data/neighborhoods.kml');
 }
 
 function loadData(){
-    //TODO: parse neighborhood data from neighborhoodParser and populate neighborhoods array  - Aravind
-
-
-    
     // Load the listings data.
-    /*
-    d3.json("data/listings_all.json", function(error, data) {
-        if (error) throw error;
-
-        //TODO: parse listings data and populate listings array 
-        for (var i = 0; i < data.length; i++) { 
-            let lat = data[i].latitude;
-            let lon = data[i].longitude;
-            let room_type = data[i].room_type;
-            let list = new Listings();
-            if (room_type === "Entire home/apt") {
-              data[i].room_type = 2;
-            } else if (room_type === "Private room") {
-              data[i].room_type = 1;
-            } else {
-              data[i].room_type = 0;
-            }
-            list.createListing(data[i].id, data[i].name, data[i].latitude, data[i].longitude, data[i].room_type, data[i].price, data[i].street);
-            listings.push(list);
-        }
-
-        // TODO: assign listing ids to each neighborhood : call neighborhood.setAllListings()
-
-
-
-
-        //TODO: (method1) assign walk scores to each listing - use walkscore API -Hung Wen 
-        for (var i = 0; i < listings.length; i++) {
-            listings[i].setWalkScore();
-            let scaleWalkscore = calculateScale(listings[i].getWalkScore(), inputWalkScoreRange, outputWalkScoreRange);
-            heatMapData.push({location:new google.maps.LatLng(listings[i].lat, listings[i].long), weight: scaleWalkscore});
-        }
-        console.log(listings);
-    });
-    */
-    
-    //TODO: (method2) assign walk scores to each listing -  read score from json -Hung Wen 
+    // assign listing ids to each neighborhood : call neighborhood.setAllListings()
+    // assign walk scores to each listing -  read score from json -Hung Wen 
     queue()
         .defer(d3.json, "data/listings_all.json")
         .defer(d3.json, "data/score.json")
@@ -240,14 +142,21 @@ function loadData(){
             } else {
               datalistings[i].room_type = 0;
             }
+            if (hashMap.has(datalistings[i].neighbourhood_cleansed)) {
+                hashMap.get(datalistings[i].neighbourhood_cleansed).push(datalistings[i].id);
+            } else {
+                var element = [];
+                element.push(datalistings[i].id);
+                hashMap.set(datalistings[i].neighbourhood_cleansed, element);
+            }
             list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
             listings.push(list);
-            heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
+            // heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
         }
         // console.log(listings);
         // console.log(heatMapData);
-        //displayHeatMap();
+        // displayHeatMap();
     }
 
 
@@ -257,7 +166,6 @@ function loadData(){
 
       
     });
-
 }
 
 function calculateScale(input, inputDomain, outputRange){
