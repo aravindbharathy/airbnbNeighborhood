@@ -114,7 +114,6 @@ var  neighborhoodParser = new geoXML3.parser(
 
 function initialize(){
     loadData();
-    neighborhoodParser.parse('../../data/neighborhoods.kml');
 }
 
 function loadData(){
@@ -152,8 +151,11 @@ function loadData(){
             list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
             listings.push(list);
+
             // heatMapData.push({location:new google.maps.LatLng(lat, lon), weight: list.walkScore});
         }
+
+        neighborhoodParser.parse('../../data/neighborhoods.kml');
         // console.log(listings);
         // console.log(heatMapData);
         // displayHeatMap();
