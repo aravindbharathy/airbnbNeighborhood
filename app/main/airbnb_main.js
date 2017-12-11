@@ -43,11 +43,23 @@ google.maps.Polygon.prototype.getApproximateCenter = function() {
 };
 
 //Create a geoXML parser for KML neighborhood
-var infowindow;
+var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
+var icons = {
+      parking: {
+        icon: iconBase + 'parking_lot_maps.png'
+      },
+      library: {
+        icon: iconBase + 'library_maps.png'
+      },
+      info: {
+        icon: iconBase + 'info-i_maps.png'
+      }
+};
 var neighborhoodParser = new geoXML3.parser(
         {
             map: map,
-            singleInfoWindow: 1,
+            singleInfoWindow: false,
+            zoom: false,
             createMarker: function (placemark, doc, neighborhood,polygon) {
 
                 var contentString = '<div id="content">'+
@@ -67,25 +79,71 @@ var neighborhoodParser = new geoXML3.parser(
                                     '</div>'+
                                     '</div>';
 
-                infowindow = new google.maps.InfoWindow({
+                var infowindow = new google.maps.InfoWindow({
                         minWidth:150, 
                         maxWidth:400,
                         content: contentString
                     });
 
+                // var markerImage = new google.maps.MarkerImage(
+                //     icons["info"].icon,
+                //     new google.maps.Size(8,8), //size
+                //     null, //origin
+                //     null, //anchor
+                //     new google.maps.Size(8,8) //scale
+                // );
+
+                var markerImage = {
+                  url: icons["info"].icon,
+                  size: new google.maps.Size(8, 8),
+                  origin: null,
+                  anchor: null,
+                  scaledSize: new google.maps.Size(8, 8)
+                };
+
                 var marker=new google.maps.Marker({
                         title: placemark.vars.val.pri_neigh,
                         position: polygon.getApproximateCenter(),    
-                        map: map
+                        map: map,
+                        icon: icons["info"].icon,
                     });        
 
                 google.maps.event.addListener(marker, 'mouseover', function() {
                     infowindow.open(map,marker);
                 });
 
+                google.maps.event.addListener(marker, 'mouseout', function() {
+                    infowindow.close(map,marker);
+                });
+
                  google.maps.event.addListener(marker, 'click', function() {
                     this.getMap().setCenter(this.getPosition());
                     this.getMap().setZoom(14);
+                });
+
+
+                //when the map zoom changes, resize the icon based on the zoom level so the marker covers the same geographic area
+                google.maps.event.addListener(map, 'zoom_changed', function() {
+                    var pixelSizeAtZoom0 = 1; //the size of the icon at zoom level 0
+                    var maxPixelSize = 20; //restricts the maximum size of the icon, otherwise the browser will choke at higher zoom levels trying to scale an image to millions of pixels
+
+                    var zoom = map.getZoom();
+                    console.log(zoom);
+                    var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(2,zoom)); // use 2 to the power of current zoom to calculate relative pixel size.  Base of exponent is 2 because relative size should double every time you zoom in
+
+                    if(relativePixelSize > maxPixelSize) //restrict the maximum size of the icon
+                        relativePixelSize = maxPixelSize;
+
+                    //change the size of the icon
+                    marker.setIcon(
+                        {
+                          url: icons["info"].icon,
+                          size: null,
+                          origin: null,
+                          anchor: null,
+                          scaledSize: new google.maps.Size(parseFloat(relativePixelSize), parseFloat(relativePixelSize)) //changes the scale
+                        }
+                    );        
                 });
 
                 return marker;
@@ -189,7 +247,7 @@ function loadData(){
         }
         // console.log(listings);
         // console.log(heatMapData);
-        displayHeatMap();
+        //displayHeatMap();
     }
 
 
