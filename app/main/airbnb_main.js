@@ -251,14 +251,14 @@ function displayScatterPlot(neighborhood){
 
 // walkscore
     var fixY = 10;
-    var avglineX = calculateScale(averageWalkScore, inputWalkScoreRange, outputWalkScoreRange);
+    var avglineX = averageWalkScore;
     // console.log("avglineX" + avglineX);
-    var data = [calculateScale(neighborhood.averageWalkScore, inputWalkScoreRange, outputWalkScoreRange)];
+    var data = [neighborhood.averageWalkScore];
     var margin = {top: 20, right: 15, bottom: 60, left: 60};
     var width = 300 - margin.left - margin.right;
     var height = 200 - margin.top - margin.bottom;
     var x = d3.scale.linear()
-              .domain([0, 3])
+              .domain([0, 100])
               .range([ 0, width ]);
     
     var y = d3.scale.linear()
