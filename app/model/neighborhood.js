@@ -9,6 +9,8 @@ function Neighborhood(polygon,id,name,value){
     this.allListings = []; //array of listing ids
     this.crimeData = "";
     this.metroStops = []; //[{lat: 22.33, long: 23.33},{lat: 22.33, long: 23.33}]
+    this.averageWalkScore = 0;
+    this.crimeRating = 0;
 
     //constructor
 
@@ -21,8 +23,20 @@ function Neighborhood(polygon,id,name,value){
 
     }
 
+    this.setValue = function(x){
+        this.value = x;
+    }
+
     this.setMetroStops = function(){
 
+    }
+
+    this.setAverageWalkScore = function(x){
+        this.averageWalkScore = x;
+    }
+
+    this.setCrimeRating = function(x){
+        this.crimeRating = x;
     }
 
     //BLOCK: getters

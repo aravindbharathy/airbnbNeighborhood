@@ -5,6 +5,9 @@ var inputWalkScoreRange={"min":0, "max":100};
 var outputWalkScoreRange={"min":0, "max":3};
 var hashMap = new Map();
 var isZoomed = false;
+var ratingsData = {};
+var averageCrimeRating = 0;
+var averageWalkScore = 0;
     
 //BLOCK: Initialize controls
 
@@ -58,96 +61,40 @@ var  neighborhoodParser = new geoXML3.parser(
             map: map,
             singleInfoWindow: false,
             zoom: false,
-            createMarker: function (placemark, doc, neighborhood, polygon) {
-                // var contentString = '<div id="content">'+
-                //                     '<div id="siteNotice">'+
-                //                     '</div>'+
-                //                     '<h1 id="firstHeading" class="firstHeading">'+ neighborhood.name +'</h1>'+
-                //                     '<div id="bodyContent">'+
-                //                     '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-                //                     'sandstone rock formation in the southern part of the '+
-                //                     'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-                //                     'south west of the nearest large town, Alice Springs; 450&#160;km '+
-                //                     '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-                //                     'Heritage Site.</p>'+
-                //                     '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-                //                     'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-                //                     '(last visited June 22, 2009).</p>'+
-                //                     '<button class="btn-primary btn-close" onclick="zoomOut()">Close</button>'+
-                //                     '</div>'+
-                //                     '</div>';
-
-                // var infowindow = new google.maps.InfoWindow({
-                //         minWidth:150, 
-                //         maxWidth:400,
-                //         content: contentString
-                //     });
-
-                // var markerImage = {
-                //    url: icons["info"].icon,
-                //    size: new google.maps.Size(8, 8),
-                //    origin: null,
-                //    anchor: null,
-                //    scaledSize: new google.maps.Size(8, 8)
-                // };
-
-                // var marker=new google.maps.Marker({
-                //         title: placemark.vars.val.pri_neigh,
-                //         position: polygon.getApproximateCenter(),    
-                //         map: map,
-                //         icon: icons["info"].icon
-                //     });        
-
-                // google.maps.event.addListener(marker, 'mouseover', function() {
-                //     infowindow.open(map,marker);
-                // });
-
-                // google.maps.event.addListener(marker, 'mouseout', function() {
-                //     if(!isZoomed){
-                //         infowindow.close(map,marker);    
-                //     }                    
-                // });
-
-                //  google.maps.event.addListener(marker, 'click', function() {
-                //     this.getMap().setCenter(this.getPosition());
-                //     this.getMap().setZoom(14);
-                //     isZoomed = true;
-                //     infowindow.open(map,marker);
-                //     placemark.polygon.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
-                //     displayHeatMap(neighborhood.getAllListings());
-                //    // displayListings(neighborhood.getAllListings());
-
-                // });
-
-                //return marker;
-            },
             afterParse:function(docs){
                 if (docs[0].gpolygons.length>0){ 
                     var colorScale = d3.scale.linear().range([0,255]).domain([1,100]);
+                    var crimeScale = d3.scale.linear().range([100,0]).domain([0,159.4]);
+
                     for(var i = 0; i < docs[0].gpolygons.length; i++){
                         var polygon = docs[0].gpolygons[i];
                         var id = docs[0].placemarks[i].vars.val.sec_neigh;
                         var name = docs[0].placemarks[i].vars.val.pri_neigh;
                         var val = Math.floor(Math.random() * 100) + 1;
-                        var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
-                        docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
                         var neighborhood = new Neighborhood(polygon,id,name,val);
                         neighborhood.setAllListings(hashMap.get(name));
                         if(typeof neighborhood.getAllListings() == 'undefined'){
                              neighborhoodParser.docs[0].gpolygons[i].setMap(null);
                         }
                         else{
-                            neighborhoods.push(neighborhood);
-                            //this.createMarker(docs[0].placemarks[i],docs[0],neighborhood,polygon);    
-                            //console.log(name);
-                            setPopup(polygon,neighborhood);
-                            
-                        }
-
-
-                        
+                            var ratings = getByValue(ratingsData,name);
+                            if(typeof ratings != "undefined"){
+                                neighborhood.setAverageWalkScore(ratings["Walk Score"]);
+                                neighborhood.setCrimeRating(ratings["Crime_Rating"]);
+                                neighborhoods.push(neighborhood);
+                                val = Math.floor((70 * Math.floor(crimeScale(ratings["Crime_Rating"]))) / 100) + Math.floor((30 * ratings["Walk Score"]) / 100);
+                                console.log(val);
+                                neighborhood.setValue(val);
+                                var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
+                                docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
+                                setPopup(polygon,neighborhood);
+                            }
+                        }  
                         
                     }
+
+
+
                 
                     console.log(neighborhoods);
                 }else{
@@ -186,7 +133,7 @@ function setPopup(polygon,neighborhood){
             title: name,
             position: polygon.getApproximateCenter(),
             map: map,
-            icon: "../images/transparent-square-tiles/png"             
+            icon: "../images/transparent-square-tiles.png"             
         });        
 
     google.maps.event.addListener(polygon,"mouseover",function() {                                
@@ -229,12 +176,24 @@ function loadData(){
     queue()
         .defer(d3.json, "data/listings_all.json")
         .defer(d3.json, "data/score.json")
+        .defer(d3.json, "data/ratings.json")
         .await(ready);
 
-    function ready(error, datalistings, dataScore) {
+    function ready(error, datalistings, dataScore, ratings) {
         if (error) throw error;
         //TODO: parse listings data and populate listings array 
-        for (var i = 0; i < datalistings.length; i++) { 
+        ratingsData = ratings;
+        var tempCrimeSum = 0;
+        var tempWalkSum = 0;
+        for (var i = 0; i < ratingsData.length; i++){
+            tempCrimeSum += ratingsData[i]["Crime_Rating"];
+            tempWalkSum += ratingsData[i]["Walk Score"];
+        }
+        averageCrimeRating = Math.floor(tempCrimeSum / ratingsData.length);
+        averageWalkScore = Math.floor(tempWalkSum / ratingsData.length);
+
+
+        for (i = 0; i < datalistings.length; i++) { 
             let lat = datalistings[i].latitude;
             let lon = datalistings[i].longitude;
             let address = datalistings[i].street;
@@ -411,4 +370,12 @@ function displayHeatMap(allListings){
         });
         heatmap.setMap(map);
     }
+}
+
+function getByValue(arr, value) {
+
+  for (var i=0, iLen=arr.length; i<iLen; i++) {
+
+    if (arr[i].name == value) return arr[i];
+  }
 }

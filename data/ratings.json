@@ -1,0 +1,464 @@
+[
+  {
+    "name": "Albany Park",
+    "id": 14,
+    "Crime_Rating": 26.99,
+    "Walk Score": 87.17
+  },
+  {
+    "name": "Archer Heights",
+    "id": 57,
+    "Crime_Rating": 55.1,
+    "Walk Score": 71.33
+  },
+  {
+    "name": "Armour Square",
+    "id": 34,
+    "Crime_Rating": 22.61,
+    "Walk Score": 86.2
+  },
+  {
+    "name": "Ashburn",
+    "id": 70,
+    "Crime_Rating": 66.69,
+    "Walk Score": 65
+  },
+  {
+    "name": "Auburn Gresham",
+    "id": 71,
+    "Crime_Rating": 80.41,
+    "Walk Score": 70.67
+  },
+  {
+    "name": "Austin",
+    "id": 25,
+    "Crime_Rating": 130.24,
+    "Walk Score": 72.73
+  },
+  {
+    "name": "Avalon Park",
+    "id": 45,
+    "Crime_Rating": 87.21,
+    "Walk Score": 0
+  },
+  {
+    "name": "Avondale",
+    "id": 21,
+    "Crime_Rating": 19.91,
+    "Walk Score": 87.84
+  },
+  {
+    "name": "Belmont Cragin",
+    "id": 19,
+    "Crime_Rating": 41.64,
+    "Walk Score": 81.75
+  },
+  {
+    "name": "Beverly",
+    "id": 72,
+    "Crime_Rating": 0,
+    "Walk Score": 64.25
+  },
+  {
+    "name": "Bridgeport",
+    "id": 60,
+    "Crime_Rating": 26.26,
+    "Walk Score": 83.98
+  },
+  {
+    "name": "Brighton Park",
+    "id": 58,
+    "Crime_Rating": 119.09,
+    "Walk Score": 81.5
+  },
+  {
+    "name": "Burnside",
+    "id": 47,
+    "Crime_Rating": 110.19,
+    "Walk Score": 0
+  },
+  {
+    "name": "Calumet Heights",
+    "id": 48,
+    "Crime_Rating": 37.78,
+    "Walk Score": 71
+  },
+  {
+    "name": "Chatham",
+    "id": 44,
+    "Crime_Rating": 70.1,
+    "Walk Score": 74.75
+  },
+  {
+    "name": "Chicago Lawn",
+    "id": 66,
+    "Crime_Rating": 69.26,
+    "Walk Score": 74.5
+  },
+  {
+    "name": "Clearing",
+    "id": 64,
+    "Crime_Rating": 10.46,
+    "Walk Score": 73
+  },
+  {
+    "name": "Douglas",
+    "id": 35,
+    "Crime_Rating": 34.64,
+    "Walk Score": 81.63
+  },
+  {
+    "name": "Dunning",
+    "id": 17,
+    "Crime_Rating": 5.8,
+    "Walk Score": 69.42
+  },
+  {
+    "name": "East Garfield Park",
+    "id": 27,
+    "Crime_Rating": 151.52,
+    "Walk Score": 75.61
+  },
+  {
+    "name": "East Side",
+    "id": 52,
+    "Crime_Rating": 101.95,
+    "Walk Score": 0
+  },
+  {
+    "name": "Edgewater",
+    "id": 77,
+    "Crime_Rating": 13.46,
+    "Walk Score": 92.67
+  },
+  {
+    "name": "Edison Park",
+    "id": 9,
+    "Crime_Rating": 0,
+    "Walk Score": 69.75
+  },
+  {
+    "name": "Englewood",
+    "id": 68,
+    "Crime_Rating": 159.4,
+    "Walk Score": 67.38
+  },
+  {
+    "name": "Forest Glen",
+    "id": 12,
+    "Crime_Rating": 0,
+    "Walk Score": 66.1
+  },
+  {
+    "name": "Fuller Park",
+    "id": 37,
+    "Crime_Rating": 96.34,
+    "Walk Score": 68.23
+  },
+  {
+    "name": "Gage Park",
+    "id": 63,
+    "Crime_Rating": 104.56,
+    "Walk Score": 0
+  },
+  {
+    "name": "Garfield Ridge",
+    "id": 56,
+    "Crime_Rating": 48.08,
+    "Walk Score": 56
+  },
+  {
+    "name": "Grand Boulevard",
+    "id": 38,
+    "Crime_Rating": 60.77,
+    "Walk Score": 78.95
+  },
+  {
+    "name": "Greater Grand Crossing",
+    "id": 69,
+    "Crime_Rating": 98.46,
+    "Walk Score": 75.32
+  },
+  {
+    "name": "Hegewisch",
+    "id": 55,
+    "Crime_Rating": 0,
+    "Walk Score": 53
+  },
+  {
+    "name": "Hermosa",
+    "id": 20,
+    "Crime_Rating": 49.29,
+    "Walk Score": 79.56
+  },
+  {
+    "name": "Humboldt Park",
+    "id": 23,
+    "Crime_Rating": 93.25,
+    "Walk Score": 85
+  },
+  {
+    "name": "Hyde Park",
+    "id": 41,
+    "Crime_Rating": 12.47,
+    "Walk Score": 86.93
+  },
+  {
+    "name": "Irving Park",
+    "id": 16,
+    "Crime_Rating": 38.39,
+    "Walk Score": 84.55
+  },
+  {
+    "name": "Jefferson Park",
+    "id": 11,
+    "Crime_Rating": 24.45,
+    "Walk Score": 78.72
+  },
+  {
+    "name": "Kenwood",
+    "id": 39,
+    "Crime_Rating": 65.87,
+    "Walk Score": 77.4
+  },
+  {
+    "name": "Lake View",
+    "id": 6,
+    "Crime_Rating": 2.4,
+    "Walk Score": 93.15
+  },
+  {
+    "name": "Lincoln Park",
+    "id": 7,
+    "Crime_Rating": 1.51,
+    "Walk Score": 94.12
+  },
+  {
+    "name": "Lincoln Square",
+    "id": 4,
+    "Crime_Rating": 13.79,
+    "Walk Score": 91.41
+  },
+  {
+    "name": "Logan Square",
+    "id": 22,
+    "Crime_Rating": 22.81,
+    "Walk Score": 91.33
+  },
+  {
+    "name": "Loop",
+    "id": 32,
+    "Crime_Rating": 2.09,
+    "Walk Score": 93.78
+  },
+  {
+    "name": "Lower West Side",
+    "id": 31,
+    "Crime_Rating": 64.89,
+    "Walk Score": 87.05
+  },
+  {
+    "name": "McKinley Park",
+    "id": 59,
+    "Crime_Rating": 23.7,
+    "Walk Score": 0
+  },
+  {
+    "name": "Montclare",
+    "id": 18,
+    "Crime_Rating": 29.81,
+    "Walk Score": 75
+  },
+  {
+    "name": "Morgan Park",
+    "id": 75,
+    "Crime_Rating": 61.26,
+    "Walk Score": 63.4
+  },
+  {
+    "name": "Mount Greenwood",
+    "id": 74,
+    "Crime_Rating": 0,
+    "Walk Score": 48
+  },
+  {
+    "name": "Near North Side",
+    "id": 8,
+    "Crime_Rating": 7.13,
+    "Walk Score": 97.23
+  },
+  {
+    "name": "Near South Side",
+    "id": 33,
+    "Crime_Rating": 25.96,
+    "Walk Score": 85.74
+  },
+  {
+    "name": "Near West Side",
+    "id": 28,
+    "Crime_Rating": 29.61,
+    "Walk Score": 89.93
+  },
+  {
+    "name": "New City",
+    "id": 61,
+    "Crime_Rating": 142.38,
+    "Walk Score": 78.5
+  },
+  {
+    "name": "North Center",
+    "id": 5,
+    "Crime_Rating": 0,
+    "Walk Score": 88.63
+  },
+  {
+    "name": "North Lawndale",
+    "id": 29,
+    "Crime_Rating": 118.63,
+    "Walk Score": 80.37
+  },
+  {
+    "name": "North Park",
+    "id": 13,
+    "Crime_Rating": 8.31,
+    "Walk Score": 79.78
+  },
+  {
+    "name": "Norwood Park",
+    "id": 10,
+    "Crime_Rating": 15.95,
+    "Walk Score": 67.92
+  },
+  {
+    "name": "O'Hare",
+    "id": 76,
+    "Crime_Rating": 5.86,
+    "Walk Score": 0
+  },
+  {
+    "name": "Oakland",
+    "id": 36,
+    "Crime_Rating": 89.4,
+    "Walk Score": 61.57
+  },
+  {
+    "name": "Portage Park",
+    "id": 15,
+    "Crime_Rating": 8.05,
+    "Walk Score": 72.05
+  },
+  {
+    "name": "Pullman",
+    "id": 50,
+    "Crime_Rating": 26.5,
+    "Walk Score": 64.25
+  },
+  {
+    "name": "Riverdale",
+    "id": 54,
+    "Crime_Rating": 124.16,
+    "Walk Score": 0
+  },
+  {
+    "name": "Rogers Park",
+    "id": 1,
+    "Crime_Rating": 31.52,
+    "Walk Score": 87.8
+  },
+  {
+    "name": "Roseland",
+    "id": 49,
+    "Crime_Rating": 107.32,
+    "Walk Score": 61.5
+  },
+  {
+    "name": "South Chicago",
+    "id": 46,
+    "Crime_Rating": 93.97,
+    "Walk Score": 63.85
+  },
+  {
+    "name": "South Deering",
+    "id": 51,
+    "Crime_Rating": 36.73,
+    "Walk Score": 66
+  },
+  {
+    "name": "South Lawndale",
+    "id": 30,
+    "Crime_Rating": 77.98,
+    "Walk Score": 85.81
+  },
+  {
+    "name": "South Shore",
+    "id": 43,
+    "Crime_Rating": 67.71,
+    "Walk Score": 78.72
+  },
+  {
+    "name": "Uptown",
+    "id": 3,
+    "Crime_Rating": 56.83,
+    "Walk Score": 91.21
+  },
+  {
+    "name": "Washington Heights",
+    "id": 73,
+    "Crime_Rating": 101.66,
+    "Walk Score": 80
+  },
+  {
+    "name": "Washington Park",
+    "id": 40,
+    "Crime_Rating": 88.65,
+    "Walk Score": 68.22
+  },
+  {
+    "name": "West Elsdon",
+    "id": 62,
+    "Crime_Rating": 75.13,
+    "Walk Score": 63.71
+  },
+  {
+    "name": "West Englewood",
+    "id": 67,
+    "Crime_Rating": 105.15,
+    "Walk Score": 66
+  },
+  {
+    "name": "West Garfield Park",
+    "id": 26,
+    "Crime_Rating": 116.93,
+    "Walk Score": 77.5
+  },
+  {
+    "name": "West Lawn",
+    "id": 65,
+    "Crime_Rating": 22.26,
+    "Walk Score": 69.78
+  },
+  {
+    "name": "West Pullman",
+    "id": 53,
+    "Crime_Rating": 82.94,
+    "Walk Score": 57
+  },
+  {
+    "name": "West Ridge",
+    "id": 2,
+    "Crime_Rating": 33.43,
+    "Walk Score": 82.06
+  },
+  {
+    "name": "West Town",
+    "id": 24,
+    "Crime_Rating": 15.66,
+    "Walk Score": 93.79
+  },
+  {
+    "name": "Woodlawn",
+    "id": 42,
+    "Crime_Rating": 75.66,
+    "Walk Score": 74.28
+  }
+]
