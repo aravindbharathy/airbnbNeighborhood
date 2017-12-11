@@ -9,10 +9,12 @@
   <PolyStyle>
     <color>#f5f5f5</color>
   </PolyStyle>
+  <BalloonStyle>
+        <displayMode>hide</displayMode>     <!-- default or hide -->
+    </BalloonStyle>
 </Style>
   <Folder><Placemark>
       <styleUrl>#defaultStyle</styleUrl>
-      
       <ExtendedData>
         <Data name="shape_area"><value>48492503.1554</value></Data><Data name="pri_neigh"><value>Grand Boulevard</value></Data><Data name="sec_neigh"><value>BRONZEVILLE</value></Data><Data name="shape_len"><value>28196.837157</value></Data>
       </ExtendedData>

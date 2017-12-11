@@ -59,65 +59,67 @@ var  neighborhoodParser = new geoXML3.parser(
             singleInfoWindow: false,
             zoom: false,
             createMarker: function (placemark, doc, neighborhood, polygon) {
-                var contentString = '<div id="content">'+
-                                    '<div id="siteNotice">'+
-                                    '</div>'+
-                                    '<h1 id="firstHeading" class="firstHeading">'+ neighborhood.name +'</h1>'+
-                                    '<div id="bodyContent">'+
-                                    '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-                                    'sandstone rock formation in the southern part of the '+
-                                    'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-                                    'south west of the nearest large town, Alice Springs; 450&#160;km '+
-                                    '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-                                    'Heritage Site.</p>'+
-                                    '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-                                    'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-                                    '(last visited June 22, 2009).</p>'+
-                                    '<button class="btn-primary btn-close" onclick="zoomOut()">Close</button>'+
-                                    '</div>'+
-                                    '</div>';
+                // var contentString = '<div id="content">'+
+                //                     '<div id="siteNotice">'+
+                //                     '</div>'+
+                //                     '<h1 id="firstHeading" class="firstHeading">'+ neighborhood.name +'</h1>'+
+                //                     '<div id="bodyContent">'+
+                //                     '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
+                //                     'sandstone rock formation in the southern part of the '+
+                //                     'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
+                //                     'south west of the nearest large town, Alice Springs; 450&#160;km '+
+                //                     '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
+                //                     'Heritage Site.</p>'+
+                //                     '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+                //                     'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+                //                     '(last visited June 22, 2009).</p>'+
+                //                     '<button class="btn-primary btn-close" onclick="zoomOut()">Close</button>'+
+                //                     '</div>'+
+                //                     '</div>';
 
-                var infowindow = new google.maps.InfoWindow({
-                        minWidth:150, 
-                        maxWidth:400,
-                        content: contentString
-                    });
+                // var infowindow = new google.maps.InfoWindow({
+                //         minWidth:150, 
+                //         maxWidth:400,
+                //         content: contentString
+                //     });
 
-                var markerImage = {
-                   url: icons["info"].icon,
-                   size: new google.maps.Size(8, 8),
-                   origin: null,
-                   anchor: null,
-                   scaledSize: new google.maps.Size(8, 8)
-                };
+                // var markerImage = {
+                //    url: icons["info"].icon,
+                //    size: new google.maps.Size(8, 8),
+                //    origin: null,
+                //    anchor: null,
+                //    scaledSize: new google.maps.Size(8, 8)
+                // };
 
-                var marker=new google.maps.Marker({
-                        title: placemark.vars.val.pri_neigh,
-                        position: polygon.getApproximateCenter(),    
-                        map: map,
-                        icon: icons["info"].icon
-                    });        
+                // var marker=new google.maps.Marker({
+                //         title: placemark.vars.val.pri_neigh,
+                //         position: polygon.getApproximateCenter(),    
+                //         map: map,
+                //         icon: icons["info"].icon
+                //     });        
 
-                google.maps.event.addListener(marker, 'mouseover', function() {
-                    infowindow.open(map,marker);
-                });
+                // google.maps.event.addListener(marker, 'mouseover', function() {
+                //     infowindow.open(map,marker);
+                // });
 
-                google.maps.event.addListener(marker, 'mouseout', function() {
-                    if(!isZoomed){
-                        infowindow.close(map,marker);    
-                    }                    
-                });
+                // google.maps.event.addListener(marker, 'mouseout', function() {
+                //     if(!isZoomed){
+                //         infowindow.close(map,marker);    
+                //     }                    
+                // });
 
-                 google.maps.event.addListener(marker, 'click', function() {
-                    this.getMap().setCenter(this.getPosition());
-                    this.getMap().setZoom(14);
-                    isZoomed = true;
-                    infowindow.open(map,marker);
-                    placemark.polygon.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
-                    displayHeatMap(neighborhood.getAllListings());
-                });
+                //  google.maps.event.addListener(marker, 'click', function() {
+                //     this.getMap().setCenter(this.getPosition());
+                //     this.getMap().setZoom(14);
+                //     isZoomed = true;
+                //     infowindow.open(map,marker);
+                //     placemark.polygon.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
+                //     displayHeatMap(neighborhood.getAllListings());
+                //    // displayListings(neighborhood.getAllListings());
 
-                return marker;
+                // });
+
+                //return marker;
             },
             afterParse:function(docs){
                 if (docs[0].gpolygons.length>0){ 
@@ -125,15 +127,28 @@ var  neighborhoodParser = new geoXML3.parser(
                     for(var i = 0; i < docs[0].gpolygons.length; i++){
                         var polygon = docs[0].gpolygons[i];
                         var id = docs[0].placemarks[i].vars.val.sec_neigh;
-                        var name = docs[0].placemarks[i].vars.val.pri_neigh;    
+                        var name = docs[0].placemarks[i].vars.val.pri_neigh;
                         var val = Math.floor(Math.random() * 100) + 1;
                         var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
                         docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
                         var neighborhood = new Neighborhood(polygon,id,name,val);
                         neighborhood.setAllListings(hashMap.get(name));
-                        neighborhoods.push(neighborhood);
-                        this.createMarker(docs[0].placemarks[i],docs[0],neighborhood,polygon);
+                        if(typeof neighborhood.getAllListings() == 'undefined'){
+                             neighborhoodParser.docs[0].gpolygons[i].setMap(null);
+                        }
+                        else{
+                            neighborhoods.push(neighborhood);
+                            //this.createMarker(docs[0].placemarks[i],docs[0],neighborhood,polygon);    
+                            //console.log(name);
+                            setPopup(polygon,neighborhood);
+                            
+                        }
+
+
+                        
+                        
                     }
+                
                     console.log(neighborhoods);
                 }else{
                     //[.....]
@@ -141,6 +156,61 @@ var  neighborhoodParser = new geoXML3.parser(
             }
 
         });
+
+function setPopup(polygon,neighborhood){
+    var contentString = '<div id="content">'+
+                        '<div id="siteNotice">'+
+                        '</div>'+
+                        '<h1 id="firstHeading" class="firstHeading">'+ neighborhood.name +'</h1>'+
+                        '<div id="bodyContent">'+
+                        '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
+                        'sandstone rock formation in the southern part of the '+
+                        'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
+                        'south west of the nearest large town, Alice Springs; 450&#160;km '+
+                        '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
+                        'Heritage Site.</p>'+
+                        '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+                        'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+                        '(last visited June 22, 2009).</p>'+
+                        '<button class="btn-primary btn-close" onclick="zoomOut()">Close</button>'+
+                        '</div>'+
+                        '</div>';
+
+    var infowindow = new google.maps.InfoWindow({
+            minWidth:150, 
+            maxWidth:400,
+            content: contentString
+        });
+
+    var marker=new google.maps.Marker({
+            title: name,
+            position: polygon.getApproximateCenter(),
+            map: map,
+            icon: "../images/transparent-square-tiles/png"             
+        });        
+
+    google.maps.event.addListener(polygon,"mouseover",function() {                                
+       // console.log(polygon);
+        if(!isZoomed){
+            infowindow.open(map,marker);
+        }
+    });
+
+    google.maps.event.addListener(polygon,"mouseout",function() {
+       // console.log("out");
+        infowindow.close(map,marker);
+    });
+
+    google.maps.event.addListener(polygon, 'click', function() {
+        this.getMap().setCenter(this.getApproximateCenter());
+        this.getMap().setZoom(14);
+        isZoomed = true;
+        infowindow.close(map,marker);
+        this.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
+        displayHeatMap(neighborhood.getAllListings());
+        displayListings(neighborhood.getAllListings());
+    });
+}
 
 function zoomOut(){
     console.log("click");  
@@ -217,7 +287,13 @@ function calculateScale(input, inputDomain, outputRange){
 initialize();
 
 
-function displayListings(data){
+function displayListings(allListings){
+    let data = [];
+    for (var i = 0; i < allListings.length; i++) {
+        let index = allListings[i];
+        data.push({lat : listings[index].lat, lng: listings[index].long});
+    }
+    console.log(data);
      var overlay = new google.maps.OverlayView();
 
       // Add the container when the overlay is added to the map.
@@ -251,7 +327,8 @@ function displayListings(data){
           //     .text(function(d) { return d.key; });
 
           function transform(d) {
-            d = new google.maps.LatLng(d.value.latitude, d.value.longitude);
+            console.log(d);
+            d = new google.maps.LatLng(d.value.lat, d.value.lng);
             d = projection.fromLatLngToDivPixel(d);
             return d3.select(this)
                 .style("left", (d.x - padding) + "px")
