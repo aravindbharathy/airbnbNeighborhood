@@ -64,7 +64,7 @@ var  neighborhoodParser = new geoXML3.parser(
             afterParse:function(docs){
                 if (docs[0].gpolygons.length>0){ 
                     var colorScale = d3.scale.linear().range([0,255]).domain([1,100]);
-                    var crimeScale = d3.scale.linear().range([100,0]).domain([0,159.4]);
+                    var crimeScale = d3.scale.linear().range([0,1000]).domain([0,159.4]);
 
                     for(var i = 0; i < docs[0].gpolygons.length; i++){
                         var polygon = docs[0].gpolygons[i];
@@ -82,6 +82,7 @@ var  neighborhoodParser = new geoXML3.parser(
                                 neighborhood.setAverageWalkScore(ratings["Walk Score"]);
                                 neighborhood.setCrimeRating(ratings["Crime_Rating"]);
                                 neighborhoods.push(neighborhood);
+                                //val = Math.floor(crimeScale(ratings["Crime_Rating"]));
                                 val = Math.floor((70 * Math.floor(crimeScale(ratings["Crime_Rating"]))) / 100) + Math.floor((30 * ratings["Walk Score"]) / 100);
                                 console.log(val);
                                 neighborhood.setValue(val);
@@ -138,9 +139,9 @@ function setPopup(polygon,neighborhood){
 
     google.maps.event.addListener(polygon,"mouseover",function() {                                
        // console.log(polygon);
-        if(!isZoomed){
+       // if(!isZoomed){
             infowindow.open(map,marker);
-        }
+      //  }
     });
 
     google.maps.event.addListener(polygon,"mouseout",function() {
@@ -215,6 +216,7 @@ function loadData(){
             }
             list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
+           // list.walkScore = dataScore[i];
             listings.push(list);
 
         }
@@ -248,11 +250,12 @@ initialize();
 
 function displayListings(allListings){
     let data = [];
+    var colorScale = d3.scale.linear().range([0,255]).domain([1,100]);
     for (var i = 0; i < allListings.length; i++) {
         let index = allListings[i];
-        data.push({lat : listings[index].lat, lng: listings[index].long});
+        data.push({lat : listings[index].lat, lng: listings[index].long, walkScore: listings[index].walkScore});
     }
-    console.log(data);
+  //  console.log(data);
      var overlay = new google.maps.OverlayView();
 
       // Add the container when the overlay is added to the map.
@@ -274,7 +277,7 @@ function displayListings(allListings){
 
           // Add a circle.
           marker.append("circle")
-              .attr("r", 2.5)
+              .attr("r", 3.5)
               .attr("cx", padding)
               .attr("cy", padding);
 
@@ -289,9 +292,13 @@ function displayListings(allListings){
             console.log(d);
             d = new google.maps.LatLng(d.value.lat, d.value.lng);
             d = projection.fromLatLngToDivPixel(d);
+            //console.log("rgb(" + Math.floor(colorScale(d.walkScore)) + "," + Math.floor(colorScale(d.walkScore)) + ",255)");
+            //console.log(d.value);
+           // var colorRGB = "rgb(" + Math.floor(colorScale(d.value.walkScore)) + "," + Math.floor(colorScale(d.value.walkScore)) + ",255)";
             return d3.select(this)
                 .style("left", (d.x - padding) + "px")
-                .style("top", (d.y - padding) + "px");
+                .style("top", (d.y - padding) + "px")
+                //.attr("fill", colorRGB);
           }
         };
       };
