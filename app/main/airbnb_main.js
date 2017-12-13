@@ -84,7 +84,7 @@ var  neighborhoodParser = new geoXML3.parser(
                                 neighborhoods.push(neighborhood);
                                 //val = Math.floor(crimeScale(ratings["Crime_Rating"]));
                                 val = Math.floor((70 * Math.floor(crimeScale(ratings["Crime_Rating"]))) / 100) + Math.floor((30 * ratings["Walk Score"]) / 100);
-                                console.log(val);
+                                // console.log(val);
                                 neighborhood.setValue(val);
                                 var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
                                 docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
@@ -97,7 +97,7 @@ var  neighborhoodParser = new geoXML3.parser(
 
 
                 
-                    console.log(neighborhoods);
+                    // console.log(neighborhoods);
                 }else{
                     //[.....]
                 }
@@ -157,7 +157,180 @@ function setPopup(polygon,neighborhood){
         this.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
         displayHeatMap(neighborhood.getAllListings());
         displayListings(neighborhood.getAllListings());
+        displayScatterPlot(neighborhood);
     });
+}
+
+function displayScatterPlot(neighborhood){
+    d3.select('p').remove();
+    d3.select('p').remove();
+    d3.select('svg').remove();
+    d3.select('svg').remove();
+
+// crime rating
+    var fixY = 10;
+    var avglineX = averageCrimeRating;
+    var data = [neighborhood.crimeRating];
+    // console.log("avglineX" + avglineX);
+
+    var margin = {top: 20, right: 15, bottom: 60, left: 60};
+    var width = 300 - margin.left - margin.right;
+    var height = 200 - margin.top - margin.bottom;
+    var x = d3.scale.linear()
+              .domain([0, 170])
+              .range([ 0, width ]);
+    
+    var y = d3.scale.linear()
+            .domain([0, fixY])
+            .range([ height, 0 ]);
+    var text = d3.select("#sidebar-wrapper")
+                  .append('p').text("Crime ratings");
+
+    var chart = d3.select("#sidebar-wrapper")
+                  .append('svg')
+                  .attr('width', width + margin.right + margin.left)
+                  .attr('height', height + margin.top + margin.bottom)
+                  .attr('class', 'chart')
+    var main = chart.append('g')
+                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('class', 'main')
+    // draw the x axis
+    var xAxis = d3.svg.axis()
+                      .scale(x)
+                      .orient('bottom');
+
+    main.append('g')
+        .attr('transform', 'translate(0,' + height + ')')
+        .attr('class', 'main axis date')
+        .call(xAxis);
+
+    // draw the y axis
+    // var yAxis = d3.svg.axis()
+    //                   .scale(y)
+    //                   .orient('left');
+
+    main.append('g')
+        .attr('transform', 'translate(0,0)')
+        .attr('class', 'main axis date')
+        // .call(yAxis);
+
+    var g = main.append("svg:g"); 
+    
+    g.selectAll("scatter-dots")
+      .data(data)
+      .enter().append("svg:circle")
+      .attr("cx", function (d) { return x(d); } )
+      .attr("cy", fixY)
+      .attr("r", 8)
+      .style("fill", function(d) {
+          if (x(d) > x(avglineX)) {
+                return "red";
+          } else {
+                return "green";
+          }
+      });
+    var lineData = [{xcoord:x(avglineX),ycoord:5},{xcoord:x(avglineX),ycoord:200}];
+
+    var line = d3.svg.line()
+                 .x(function(d) {
+                      return d.xcoord;
+                  })
+                  .y(function(d) {
+                  return d.ycoord;
+                  });
+    g.append('path')
+     .attr({
+        'd': line(lineData),
+        'y': 0,
+        'stroke': '#000',
+        'stroke-width': '2px',
+        'fill': 'none'
+     });
+
+
+// walkscore
+    var fixY = 10;
+    var avglineX = averageWalkScore;
+    // console.log("avglineX" + avglineX);
+    var data = [neighborhood.averageWalkScore];
+    var margin = {top: 20, right: 15, bottom: 60, left: 60};
+    var width = 300 - margin.left - margin.right;
+    var height = 200 - margin.top - margin.bottom;
+    var x = d3.scale.linear()
+              .domain([0, 100])
+              .range([ 0, width ]);
+    
+    var y = d3.scale.linear()
+            .domain([0, fixY])
+            .range([ height, 0 ]);
+ 
+    var text = d3.select("#sidebar-wrapper")
+                  .append('p').text("Walk Score");
+    var chart = d3.select("#sidebar-wrapper")
+                  .append('svg')
+                  .attr('width', width + margin.right + margin.left)
+                  .attr('height', height + margin.top + margin.bottom)
+                  .attr('class', 'chart')
+    var main = chart.append('g')
+                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('class', 'main')
+    // draw the x axis
+    var xAxis = d3.svg.axis()
+                      .scale(x)
+                      .orient('bottom');
+
+    main.append('g')
+        .attr('transform', 'translate(0,' + height + ')')
+        .attr('class', 'main axis date')
+        .call(xAxis);
+
+    // draw the y axis
+    // var yAxis = d3.svg.axis()
+    //                   .scale(y)
+    //                   .orient('left');
+
+    main.append('g')
+        .attr('transform', 'translate(0,0)')
+        .attr('class', 'main axis date')
+        // .call(yAxis);
+
+    var g = main.append("svg:g"); 
+    
+    g.selectAll("scatter-dots")
+      .data(data)
+      .enter().append("svg:circle")
+      .attr("cx", function (d) { return x(d); } )
+      .attr("cy", fixY)
+      .attr("r", 8)
+      .style("fill", function(d) {
+          if (x(d) > x(avglineX)) {
+                return "red";
+          } else {
+                return "green";
+          }
+      });
+
+    var lineData = [{xcoord:x(avglineX),ycoord:5},{xcoord:x(avglineX),ycoord:200}];
+
+    var line = d3.svg.line()
+                 .x(function(d) {
+                      return d.xcoord;
+                  })
+                  .y(function(d) {
+                  return d.ycoord;
+                  });
+    g.append('path')
+     .attr({
+        'd': line(lineData),
+        'y': 0,
+        'stroke': '#000',
+        'stroke-width': '2px',
+        'fill': 'none'
+     });
 }
 
 function zoomOut(){
@@ -255,7 +428,7 @@ function displayListings(allListings){
         let index = allListings[i];
         data.push({lat : listings[index].lat, lng: listings[index].long, walkScore: listings[index].walkScore});
     }
-  //  console.log(data);
+    
      var overlay = new google.maps.OverlayView();
 
       // Add the container when the overlay is added to the map.
@@ -289,7 +462,7 @@ function displayListings(allListings){
           //     .text(function(d) { return d.key; });
 
           function transform(d) {
-            console.log(d);
+            // console.log(d);
             d = new google.maps.LatLng(d.value.lat, d.value.lng);
             d = projection.fromLatLngToDivPixel(d);
             //console.log("rgb(" + Math.floor(colorScale(d.walkScore)) + "," + Math.floor(colorScale(d.walkScore)) + ",255)");
