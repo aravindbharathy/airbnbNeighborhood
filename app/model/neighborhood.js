@@ -53,6 +53,10 @@ function Neighborhood(polygon,id,name,value){
         return this.metroStops;
     }
 
+    this.getValue = function(){
+        return this.value;
+    }
+
 
     //BLOCK: utility functions
 

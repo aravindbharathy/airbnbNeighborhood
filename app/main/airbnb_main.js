@@ -2,21 +2,26 @@
 var neighborhoods = []; //list of all neighborhoods stored as objects
 var listings = []; //list of all listings stored as objects
 var inputWalkScoreRange={"min":0, "max":100};
-var outputWalkScoreRange={"min":0, "max":3};
+var outputWalkScoreRange={"min":0, "max":10};
 var hashMap = new Map();
 var isZoomed = false;
 var ratingsData = {};
 var averageCrimeRating = 0;
 var averageWalkScore = 0;
+var currentPolygon = "undefined";
+var currentNeighborhood = "undefined";
+var currentHeapMap = "";
     
 //BLOCK: Initialize controls
 
 // Create the Google Map…
 var map = new google.maps.Map(d3.select("#map").node(), {
-  zoom: 13,
+  zoom: 12,
   center: new google.maps.LatLng(41.8750748 , -87.6514596),
   mapTypeId: google.maps.MapTypeId.roadmap
 });
+
+var safetyScale = d3.scale.linear().range([100,0]).domain([0,159.4]);
 
 google.maps.Polygon.prototype.getBounds = function() {
     var bounds = new google.maps.LatLngBounds();
@@ -59,17 +64,18 @@ var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 var  neighborhoodParser = new geoXML3.parser(
         {
             map: map,
-            singleInfoWindow: false,
+            singleInfoWindow: 0,
             zoom: false,
             afterParse:function(docs){
                 if (docs[0].gpolygons.length>0){ 
                     var colorScale = d3.scale.linear().range([0,255]).domain([1,100]);
-                    var crimeScale = d3.scale.linear().range([0,1000]).domain([0,159.4]);
-
+                    var crimeScale = d3.scale.linear().range([0,500]).domain([0,159.4]);
                     for(var i = 0; i < docs[0].gpolygons.length; i++){
                         var polygon = docs[0].gpolygons[i];
-                        var id = docs[0].placemarks[i].vars.val.sec_neigh;
-                        var name = docs[0].placemarks[i].vars.val.pri_neigh;
+                        // var id = docs[0].placemarks[i].vars.val.sec_neigh;
+                        // var name = docs[0].placemarks[i].vars.val.pri_neigh;
+                        var id = toTitleCase(docs[0].placemarks[i].vars.val.community.toLowerCase());
+                        var name = camelize(docs[0].placemarks[i].vars.val.community.toLowerCase());
                         var val = Math.floor(Math.random() * 100) + 1;
                         var neighborhood = new Neighborhood(polygon,id,name,val);
                         neighborhood.setAllListings(hashMap.get(name));
@@ -86,18 +92,16 @@ var  neighborhoodParser = new geoXML3.parser(
                                 val = Math.floor((70 * Math.floor(crimeScale(ratings["Crime_Rating"]))) / 100) + Math.floor((30 * ratings["Walk Score"]) / 100);
                                 // console.log(val);
                                 neighborhood.setValue(val);
-                                var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
-                                docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.5, strokeWidth: 10});
+                               // var color = "rgb(" + Math.floor(colorScale(val)) + "," + Math.floor(colorScale(val)) + ",255)";
+                                var color = "rgb(" + Math.floor(colorScale(val)) + ",255," + Math.floor(colorScale(val)) + ")";
+                                docs[0].placemarks[i].polygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.8, strokeWidth: 10});
                                 setPopup(polygon,neighborhood);
                             }
                         }  
                         
                     }
 
-
-
-                
-                    // console.log(neighborhoods);
+                     console.log(neighborhoods);
                 }else{
                     //[.....]
                 }
@@ -106,22 +110,20 @@ var  neighborhoodParser = new geoXML3.parser(
         });
 
 function setPopup(polygon,neighborhood){
+    var colorInterpolateCrime = d3.scale.linear()
+                .domain([0, Math.floor(safetyScale(averageCrimeRating)), 100])
+                .range(['#d73027', '#fee08b', '#1a9850'])
+                .interpolate(d3.interpolateHcl);
+
+    var colorInterpolateWalkScore = d3.scale.linear()
+                .domain([0, Math.floor(averageWalkScore), 100])
+                .range(['#d73027', '#fee08b', '#1a9850'])
+                .interpolate(d3.interpolateHcl);
+
     var contentString = '<div id="content">'+
-                        '<div id="siteNotice">'+
-                        '</div>'+
-                        '<h1 id="firstHeading" class="firstHeading">'+ neighborhood.name +'</h1>'+
-                        '<div id="bodyContent">'+
-                        '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-                        'sandstone rock formation in the southern part of the '+
-                        'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-                        'south west of the nearest large town, Alice Springs; 450&#160;km '+
-                        '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-                        'Heritage Site.</p>'+
-                        '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-                        'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-                        '(last visited June 22, 2009).</p>'+
-                        '<button class="btn-primary btn-close" onclick="zoomOut()">Close</button>'+
-                        '</div>'+
+                        '<h1 id="firstHeading" class="firstHeading">'+ neighborhood.id +'</h1>'+
+                        '<p style="font-size:25px;"><b>Safety Rating: </b> <span style="color:' + colorInterpolateCrime(Math.floor(safetyScale(neighborhood.crimeRating))) + ';">' + Math.floor(safetyScale(neighborhood.crimeRating)) + '</span></p>' +
+                        '<p style="font-size:25px;"><b>Convenience Rating: </b> <span style="color:' + colorInterpolateWalkScore(Math.floor(neighborhood.averageWalkScore)) + ';">' + Math.floor(neighborhood.averageWalkScore) + '</span></p>' +
                         '</div>';
 
     var infowindow = new google.maps.InfoWindow({
@@ -130,33 +132,76 @@ function setPopup(polygon,neighborhood){
             content: contentString
         });
 
+    var heatmap = new google.maps.visualization.HeatmapLayer({
+          radius: 25,
+          dissipating: true,
+          gradient: ["rgba(255, 255, 255,0)","rgb(235, 250, 235)", "rgb(173, 235, 173)", "rgb(111, 220, 111)", "rgb(50, 205, 50)", "rgb(35, 144, 35)"]
+        });
+
     var marker=new google.maps.Marker({
             title: name,
             position: polygon.getApproximateCenter(),
             map: map,
             icon: "../images/transparent-square-tiles.png"             
-        });        
+        });     
 
     google.maps.event.addListener(polygon,"mouseover",function() {                                
-       // console.log(polygon);
-       // if(!isZoomed){
-            infowindow.open(map,marker);
-      //  }
+       // infowindow.open(map,marker);
+       $('#info-window').empty();
+       $('#info-window').append("<p></p><p></p>");
+       $('#info-window').append(contentString);
+       displayScatterPlot(neighborhood);
     });
 
     google.maps.event.addListener(polygon,"mouseout",function() {
-       // console.log("out");
         infowindow.close(map,marker);
     });
+
+    google.maps.event.addListener(map, 'center_changed', function() {
+        resetMap();
+    });
+
+    google.maps.event.addListener(map, 'zoom_changed', function() {
+        //zoomLevel = map.getZoom();
+        resetMap();
+    });
+
+    function resetMap(){
+        if(currentPolygon != "undefined"){
+            //console.log(neighborhood);
+            var val = currentNeighborhood.value;
+            var colorScale = d3.scale.linear().range([0,255]).domain([1,100]);
+            var crimeScale = d3.scale.linear().range([0,500]).domain([0,159.4]);
+            var color = "rgb(" + Math.floor(colorScale(val)) + ",255," + Math.floor(colorScale(val)) + ")";
+            currentPolygon.setOptions({fillColor: color, strokeColor: "#000000", fillOpacity: 0.8, strokeWidth: 10});
+            currentHeapMap.setMap(null);
+            currentPolygon = "undefined";
+        }
+    }
+
 
     google.maps.event.addListener(polygon, 'click', function() {
         this.getMap().setCenter(this.getApproximateCenter());
         this.getMap().setZoom(14);
+        currentPolygon = polygon;
+        currentNeighborhood = neighborhood;
+        console.log(neighborhood);
         isZoomed = true;
         infowindow.close(map,marker);
         this.setOptions({fillColor: "#000", strokeColor: "#000000", fillOpacity: 0, strokeWidth: 20});
-        displayHeatMap(neighborhood.getAllListings());
-        displayListings(neighborhood.getAllListings());
+        if (typeof(neighborhood.allListings) !== 'undefined'){
+            let heatMapData = [];
+            for (var i = 0; i < neighborhood.allListings.length; i++) {
+                let index = neighborhood.allListings[i];
+                heatMapData.push({location:new google.maps.LatLng(listings[index].lat, listings[index].long), weight: listings[index].walkScore});
+            }
+            heatmap.setData(heatMapData);               
+            heatmap.setMap(map);
+            currentHeapMap = heatmap;
+        }
+        $('#info-window').empty();
+        $('#info-window').append("<p></p><p></p>");
+        $('#info-window').append(contentString);
         displayScatterPlot(neighborhood);
     });
 }
@@ -167,26 +212,39 @@ function displayScatterPlot(neighborhood){
     d3.select('svg').remove();
     d3.select('svg').remove();
 
+    var colorInterpolateCrime = d3.scale.linear()
+                .domain([0, Math.floor(safetyScale(averageCrimeRating)), 100])
+                .range(['#d73027', '#fee08b', '#1a9850'])
+                .interpolate(d3.interpolateHcl);
+
+    var colorInterpolateWalkScore = d3.scale.linear()
+                .domain([0, Math.floor(averageWalkScore), 100])
+                .range(['#d73027', '#fee08b', '#1a9850'])
+                .interpolate(d3.interpolateHcl);
+
 // crime rating
     var fixY = 10;
-    var avglineX = averageCrimeRating;
-    var data = [neighborhood.crimeRating];
+    var avglineX = Math.floor(safetyScale(averageCrimeRating));
+    var allData = [];
+    for(var i = 0; i < neighborhoods.length; i++){
+        allData.push(Math.floor(safetyScale(neighborhoods[i].crimeRating)));
+    }
+    var data = [Math.floor(safetyScale(neighborhood.crimeRating))];
     // console.log("avglineX" + avglineX);
 
-    var margin = {top: 20, right: 15, bottom: 60, left: 60};
-    var width = 300 - margin.left - margin.right;
-    var height = 200 - margin.top - margin.bottom;
+    var margin = {top: 20, right: 20, bottom: 50, left: 20};
+    var width = 400 - margin.left - margin.right;
+    var height = 120 - margin.top - margin.bottom;
     var x = d3.scale.linear()
-              .domain([0, 170])
+              .domain([0, 100])
               .range([ 0, width ]);
     
     var y = d3.scale.linear()
             .domain([0, fixY])
             .range([ height, 0 ]);
-    var text = d3.select("#sidebar-wrapper")
-                  .append('p').text("Crime ratings");
+    
 
-    var chart = d3.select("#sidebar-wrapper")
+    var chart = d3.select("#info-graphs1")
                   .append('svg')
                   .attr('width', width + margin.right + margin.left)
                   .attr('height', height + margin.top + margin.bottom)
@@ -218,20 +276,29 @@ function displayScatterPlot(neighborhood){
 
     var g = main.append("svg:g"); 
     
+    
+    g.selectAll("scatter-dots")
+      .data(allData)
+      .enter().append("svg:circle")
+      .attr("cx", function (d) { return x(d); } )
+      .attr("cy", fixY)
+      .attr("r", 8)
+      .style("fill", function(d) {
+          return "rgba(125,125,125,0.1)";
+      });
+
     g.selectAll("scatter-dots")
       .data(data)
       .enter().append("svg:circle")
       .attr("cx", function (d) { return x(d); } )
       .attr("cy", fixY)
       .attr("r", 8)
+      .attr("stroke-width", 1)
+      .attr("stroke", "#000000")
       .style("fill", function(d) {
-          if (x(d) > x(avglineX)) {
-                return "red";
-          } else {
-                return "green";
-          }
+          return colorInterpolateCrime(d);
       });
-    var lineData = [{xcoord:x(avglineX),ycoord:5},{xcoord:x(avglineX),ycoord:200}];
+    var lineData = [{xcoord:x(avglineX),ycoord:5},{xcoord:x(avglineX),ycoord: (height+margin.bottom)}];
 
     var line = d3.svg.line()
                  .x(function(d) {
@@ -240,6 +307,9 @@ function displayScatterPlot(neighborhood){
                   .y(function(d) {
                   return d.ycoord;
                   });
+
+
+
     g.append('path')
      .attr({
         'd': line(lineData),
@@ -249,15 +319,34 @@ function displayScatterPlot(neighborhood){
         'fill': 'none'
      });
 
+    g.append("rect")
+        .attr("x", function() { return lineData[0].xcoord - 50 ; })
+        .attr("y", function() { return height + 30 ; })
+        .attr("width", 100)
+        .attr("height", 20)
+        .attr("fill", "rgb(125,125,125)");
+
+    g.append("text")
+    .attr("x", function() { return lineData[0].xcoord; })
+    .attr("y", function() { return height + 40 ; })
+    .attr("dy", ".35em")
+    .style("fill", "#fff")
+    .attr("text-anchor", "middle")
+    .text("City Average");
+
 
 // walkscore
     var fixY = 10;
     var avglineX = averageWalkScore;
     // console.log("avglineX" + avglineX);
+    var allData = []
+    for(var i = 0; i < neighborhoods.length; i++){
+        allData.push(neighborhoods[i].averageWalkScore);
+    }
     var data = [neighborhood.averageWalkScore];
-    var margin = {top: 20, right: 15, bottom: 60, left: 60};
-    var width = 300 - margin.left - margin.right;
-    var height = 200 - margin.top - margin.bottom;
+    var margin = {top: 20, right: 20, bottom: 50, left: 20};
+    var width = 400 - margin.left - margin.right;
+    var height = 120 - margin.top - margin.bottom;
     var x = d3.scale.linear()
               .domain([0, 100])
               .range([ 0, width ]);
@@ -266,9 +355,7 @@ function displayScatterPlot(neighborhood){
             .domain([0, fixY])
             .range([ height, 0 ]);
  
-    var text = d3.select("#sidebar-wrapper")
-                  .append('p').text("Walk Score");
-    var chart = d3.select("#sidebar-wrapper")
+    var chart = d3.select("#info-graphs2")
                   .append('svg')
                   .attr('width', width + margin.right + margin.left)
                   .attr('height', height + margin.top + margin.bottom)
@@ -301,17 +388,26 @@ function displayScatterPlot(neighborhood){
     var g = main.append("svg:g"); 
     
     g.selectAll("scatter-dots")
-      .data(data)
+      .data(allData)
       .enter().append("svg:circle")
       .attr("cx", function (d) { return x(d); } )
       .attr("cy", fixY)
       .attr("r", 8)
       .style("fill", function(d) {
-          if (x(d) > x(avglineX)) {
-                return "red";
-          } else {
-                return "green";
-          }
+          return "rgba(125,125,125,0.1)";
+      });
+
+
+    g.selectAll("scatter-dots")
+      .data(data)
+      .enter().append("svg:circle")
+      .attr("cx", function (d) { return x(d); } )
+      .attr("cy", fixY)
+      .attr("r", 8)
+      .attr("stroke-width", 1)
+      .attr("stroke", "#000000")
+      .style("fill", function(d) {
+          return colorInterpolateWalkScore(d);
       });
 
     var lineData = [{xcoord:x(avglineX),ycoord:5},{xcoord:x(avglineX),ycoord:200}];
@@ -331,6 +427,21 @@ function displayScatterPlot(neighborhood){
         'stroke-width': '2px',
         'fill': 'none'
      });
+
+      g.append("rect")
+        .attr("x", function() { return lineData[0].xcoord - 50 ; })
+        .attr("y", function() { return height + 30 ; })
+        .attr("width", 100)
+        .attr("height", 20)
+        .attr("fill", "rgb(125,125,125)");
+
+    g.append("text")
+    .attr("x", function() { return lineData[0].xcoord; })
+    .attr("y", function() { return height + 40 ; })
+    .attr("dy", ".35em")
+    .style("fill", "#fff")
+    .attr("text-anchor", "middle")
+    .text("City Average");
 }
 
 function zoomOut(){
@@ -360,6 +471,7 @@ function loadData(){
         var tempCrimeSum = 0;
         var tempWalkSum = 0;
         for (var i = 0; i < ratingsData.length; i++){
+            ratingsData[i].name = camelize(ratingsData[i].name);
             tempCrimeSum += ratingsData[i]["Crime_Rating"];
             tempWalkSum += ratingsData[i]["Walk Score"];
         }
@@ -380,12 +492,12 @@ function loadData(){
             } else {
               datalistings[i].room_type = 0;
             }
-            if (hashMap.has(datalistings[i].neighbourhood_cleansed)) {
-                hashMap.get(datalistings[i].neighbourhood_cleansed).push(i);
+            if (hashMap.has(camelize(datalistings[i].neighbourhood_cleansed))) {
+                hashMap.get(camelize(datalistings[i].neighbourhood_cleansed)).push(i);
             } else {
                 var element = [];
                 element.push(i);
-                hashMap.set(datalistings[i].neighbourhood_cleansed, element);
+                hashMap.set(camelize(datalistings[i].neighbourhood_cleansed), element);
             }
             list.createListing(datalistings[i].id, datalistings[i].name, datalistings[i].latitude, datalistings[i].longitude, datalistings[i].room_type, datalistings[i].price, datalistings[i].street);
             list.walkScore = calculateScale(dataScore[i], inputWalkScoreRange, outputWalkScoreRange);
@@ -394,7 +506,7 @@ function loadData(){
 
         }
 
-        neighborhoodParser.parse('../../data/neighborhoods.kml');
+        neighborhoodParser.parse('../../data/neighborhoods2.kml');
     }
 
 
@@ -428,7 +540,7 @@ function displayListings(allListings){
         let index = allListings[i];
         data.push({lat : listings[index].lat, lng: listings[index].long, walkScore: listings[index].walkScore});
     }
-    
+
      var overlay = new google.maps.OverlayView();
 
       // Add the container when the overlay is added to the map.
@@ -546,7 +658,9 @@ function displayHeatMap(allListings){
             heatMapData.push({location:new google.maps.LatLng(listings[index].lat, listings[index].long), weight: listings[index].walkScore});
         }
         var heatmap = new google.maps.visualization.HeatmapLayer({
-          data: heatMapData
+          data: heatMapData,
+          radius: 30,
+          gradient: ["rgba(255, 255, 255,0)","rgb(235, 250, 235)", "rgb(173, 235, 173)", "rgb(111, 220, 111)", "rgb(50, 205, 50)", "rgb(35, 144, 35)"]
         });
         heatmap.setMap(map);
     }
@@ -558,4 +672,17 @@ function getByValue(arr, value) {
 
     if (arr[i].name == value) return arr[i];
   }
+}
+
+
+function camelize(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+    return index == 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}
+
+function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
