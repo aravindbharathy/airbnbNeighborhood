@@ -506,7 +506,7 @@ function loadData(){
 
         }
 
-        neighborhoodParser.parse('../../data/neighborhoods2.kml');
+        neighborhoodParser.parse('/data/neighborhoods2.kml');
     }
 
 
